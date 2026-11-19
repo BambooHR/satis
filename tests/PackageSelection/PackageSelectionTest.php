@@ -105,7 +105,6 @@ class PackageSelectionTest extends TestCase
 
         $reflection = new \ReflectionClass(get_class($builder));
         $method = $reflection->getMethod('getPackages');
-        $method->setAccessible(true);
 
         self::assertSame($expected, $method->invokeArgs($builder, [$repository]));
     }
@@ -165,14 +164,11 @@ class PackageSelectionTest extends TestCase
 
         $reflection = new \ReflectionClass(get_class($builder));
         $method = $reflection->getMethod('getRequired');
-        $method->setAccessible(true);
 
         $property = $reflection->getProperty('requireDependencies');
-        $property->setAccessible(true);
         $property->setValue($builder, $requireDependencies);
 
         $property = $reflection->getProperty('requireDevDependencies');
-        $property->setAccessible(true);
         $property->setValue($builder, $requireDevDependencies);
 
         self::assertSame($expected, $method->invokeArgs($builder, [$package, true]));
@@ -225,10 +221,8 @@ class PackageSelectionTest extends TestCase
 
         $reflection = new \ReflectionClass(get_class($builder));
         $method = $reflection->getMethod('setSelectedAsAbandoned');
-        $method->setAccessible(true);
 
         $property = $reflection->getProperty('selected');
-        $property->setAccessible(true);
         $property->setValue($builder, [$package->getUniqueName() => $package]);
 
         $method->invokeArgs($builder, []);
@@ -286,11 +280,9 @@ class PackageSelectionTest extends TestCase
         $reflection = new \ReflectionClass(get_class($builder));
 
         $property = $reflection->getProperty('selected');
-        $property->setAccessible(true);
         $property->setValue($builder, $selected);
 
         $method = $reflection->getMethod('pruneBlacklisted');
-        $method->setAccessible(true);
         $method->invokeArgs($builder, [$repositorySet, false]);
 
         self::assertEquals(array_values($expected), array_values($property->getValue($builder)));
@@ -747,7 +739,7 @@ class PackageSelectionTest extends TestCase
      * @param string[]|null $filterRepos
      * @param string[]|null $filterPackages
      */
-    public function testSelect(array $expected, array $config, array $filterRepos = null, array $filterPackages = null): void
+    public function testSelect(array $expected, array $config, ?array $filterRepos = null, ?array $filterPackages = null): void
     {
         if (null !== $filterRepos || null !== $filterPackages) {
             // Need to be able to override the default package repository class to allow testing of the filter options.
@@ -770,7 +762,6 @@ class PackageSelectionTest extends TestCase
 
         $selectionRef = new \ReflectionClass(PackageSelection::class);
         $selected = $selectionRef->getProperty('selected');
-        $selected->setAccessible(true);
 
         \sort($expected, \SORT_STRING);
         self::assertEquals($expected, \array_keys($selected->getValue($selection)));
@@ -820,7 +811,6 @@ class PackageSelectionTest extends TestCase
         $selectionRef = new \ReflectionClass(\get_class($selection));
 
         $select = $selectionRef->getMethod('select');
-        $select->setAccessible(true);
         $result = $select->invokeArgs($selection, [$composer, true]);
 
         self::assertEquals($expected, array_keys($result));
@@ -1020,11 +1010,9 @@ class PackageSelectionTest extends TestCase
         }
 
         $selected = $selectionRef->getProperty('selected');
-        $selected->setAccessible(true);
         $selected->setValue($selection, $packages);
 
         $clean = $selectionRef->getMethod('clean');
-        $clean->setAccessible(true);
 
         $cleanPackages = $clean->invokeArgs($selection, []);
         $sources = [];
@@ -1078,13 +1066,11 @@ class PackageSelectionTest extends TestCase
         $builder = new PackageSelection(new NullOutput(), 'build', $config, false);
         $reflection = new \ReflectionClass(get_class($builder));
         $method = $reflection->getMethod('selectLinks');
-        $method->setAccessible(true);
         $method->invokeArgs($builder, [$repositorySet, [$rootLink], false, false]);
 
         $property = $reflection->getProperty('selected');
-        $property->setAccessible(true);
 
-        self::assertEquals(array_values([$packageA0, $packageB1, $packageC1]), array_values($property->getValue($builder)));
+        self::assertEquals([$packageA0, $packageB1, $packageC1], array_values($property->getValue($builder)));
     }
 }
 
@@ -1096,16 +1082,12 @@ final class MockPackageSelectionPackageRepository extends PackageRepository impl
     /** @var string */
     private $url;
 
-    /*
-     * Constructor.
-     *
-     * @param array{package: mixed[], ?url: string} $config package definition
+    /**
+     * @param array{package: array<mixed>, url?: string} $config package definition
      */
     public function __construct(array $config)
     {
         $this->name = $config['package']['name'] ?? $config['package'][0]['name'];
-        // Composer\Repository\PackageRepository has a definition without the "url" key
-        // phpstan does not pick the amended schema above
         $this->url = $config['url'] ?? '';
 
         parent::__construct($config);

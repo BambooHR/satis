@@ -174,7 +174,7 @@ class PackageSelection
             return BasePackage::$stabilities[$value];
         }, $this->minimumStabilityPerPackage);
 
-        if ($this->hasRepositoriesFilter()) {
+        if (null !== $this->repositoriesFilter) {
             $repos = $this->filterRepositories($repos);
 
             if (0 === count($repos)) {
@@ -201,7 +201,7 @@ class PackageSelection
                             continue;
                         }
                         // Treat any combination of missing or present trailing slash as equal
-                        if (rtrim($config['url'], '/') == rtrim($satisRepo['url'], '/')) {
+                        if (rtrim($config['url'], '/') === rtrim($satisRepo['url'], '/')) {
                             $repos[] = $repo;
                         }
                     }
@@ -427,11 +427,11 @@ class PackageSelection
                 continue;
             }
 
-            @list($host, $mask) = explode('/', $entry, 2);
-            $host = @inet_pton($host);
+            $parts = explode('/', $entry, 2);
+            $host = @inet_pton($parts[0]);
+            $mask = $parts[1] ?? null;
 
-            /** @var string|null $mask */
-            if (false === $host || (int) $mask != $mask) {
+            if (false === $host || (null !== $mask && (string) (int) $mask !== $mask)) {
                 $this->output->writeln(sprintf('<error>Invalid subnet "%s"</error>', $entry));
                 continue;
             }
@@ -773,7 +773,7 @@ class PackageSelection
             $matches = [];
             if (false !== $link && is_a($link, PackageInterface::class)) {
                 $matches = [$link];
-            } elseif (false !== $link && is_a($link, Link::class)) {
+            } elseif (false !== $link) {
                 $name = $link->getTarget();
                 if (!$isRoot && $this->onlyBestCandidates) {
                     $selector = new VersionSelector($repositorySet);
@@ -797,12 +797,6 @@ class PackageSelection
 
                 $uniqueName = $package->getUniqueName();
                 $prettyVersion = $package->getPrettyVersion();
-
-                if (!is_string($prettyVersion)) {
-                    $this->output->writeln('<notice>Skipping ' . $package->getPrettyName() . ' (' . $prettyVersion . ') due to invalid version type</notice>');
-
-                    continue;
-                }
 
                 // Check if + character is present, only once according to Semver;
                 // otherwise metadata will stripped as usual

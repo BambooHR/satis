@@ -1,13 +1,11 @@
 includes:
   - tools/phpstan/vendor/phpstan/phpstan-deprecation-rules/rules.neon
-  - tools/phpstan/vendor/phpstan/phpstan-php-parser/extension.neon
   - tools/phpstan/vendor/phpstan/phpstan-strict-rules/rules.neon
-  - phpstan-baseline.neon
 
 parameters:
   level: 8
   tmpDir: .
-  phpVersion: 80204
+  phpVersion: 80513
 
   paths:
     - src

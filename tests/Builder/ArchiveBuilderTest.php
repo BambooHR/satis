@@ -82,19 +82,18 @@ class ArchiveBuilderTest extends TestCase
             )
         );
 
-        $archiveManager = new class() extends ArchiveManager {
-            public function __construct()
-            {
-            }
-
-            public function archive(CompletePackageInterface $package, string $format, string $targetDir, string $fileName = null, bool $ignoreFilters = false): string
-            {
-                $target = $targetDir.'/'.$this->getPackageFilename($package).'.'.$format;
+        $archiveManager = $this->getMockBuilder(ArchiveManager::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['archive'])
+            ->getMock();
+        $archiveManager->method('archive')->willReturnCallback(
+            static function (CompletePackageInterface $package, string $format, string $targetDir) use ($archiveManager): string {
+                $target = $targetDir.'/'.$archiveManager->getPackageFilename($package).'.'.$format;
                 touch($target);
 
                 return $target;
             }
-        };
+        );
 
         $this->composer = new Composer();
         $this->composer->setConfig($composerConfig);
