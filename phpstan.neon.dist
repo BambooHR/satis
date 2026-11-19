@@ -1,7 +1,6 @@
 includes:
   - tools/phpstan/vendor/phpstan/phpstan-deprecation-rules/rules.neon
   - tools/phpstan/vendor/phpstan/phpstan-strict-rules/rules.neon
-  - phpstan-baseline.neon
 
 parameters:
   level: 8

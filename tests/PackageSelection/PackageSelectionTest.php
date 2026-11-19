@@ -739,7 +739,7 @@ class PackageSelectionTest extends TestCase
      * @param string[]|null $filterRepos
      * @param string[]|null $filterPackages
      */
-    public function testSelect(array $expected, array $config, array $filterRepos = null, array $filterPackages = null): void
+    public function testSelect(array $expected, array $config, ?array $filterRepos = null, ?array $filterPackages = null): void
     {
         if (null !== $filterRepos || null !== $filterPackages) {
             // Need to be able to override the default package repository class to allow testing of the filter options.
@@ -1070,7 +1070,7 @@ class PackageSelectionTest extends TestCase
 
         $property = $reflection->getProperty('selected');
 
-        self::assertEquals(array_values([$packageA0, $packageB1, $packageC1]), array_values($property->getValue($builder)));
+        self::assertEquals([$packageA0, $packageB1, $packageC1], array_values($property->getValue($builder)));
     }
 }
 
@@ -1082,16 +1082,12 @@ final class MockPackageSelectionPackageRepository extends PackageRepository impl
     /** @var string */
     private $url;
 
-    /*
-     * Constructor.
-     *
-     * @param array{package: mixed[], ?url: string} $config package definition
+    /**
+     * @param array{package: array<mixed>, url?: string} $config package definition
      */
     public function __construct(array $config)
     {
         $this->name = $config['package']['name'] ?? $config['package'][0]['name'];
-        // Composer\Repository\PackageRepository has a definition without the "url" key
-        // phpstan does not pick the amended schema above
         $this->url = $config['url'] ?? '';
 
         parent::__construct($config);

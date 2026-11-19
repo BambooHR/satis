@@ -80,8 +80,14 @@ class PackagesBuilderDumpTest extends TestCase
 
             if ($providers) {
                 $packageName = key($arrayPackages);
+                if (!is_string($packageName)) {
+                    throw new \RuntimeException('Package name must be a string.');
+                }
                 $arrayPackages[$packageName][$i . '.0']['uid'] = 1;
                 $hash = current($packagesJson['providers'][$packageName]);
+                if (!is_string($hash)) {
+                    throw new \RuntimeException('Provider hash must be a string.');
+                }
                 $includeJson = str_replace(['%package%', '%hash%'], [$packageName, $hash], $packagesJson['providers-url']);
             } else {
                 $includes = array_keys($packagesJson['includes']);

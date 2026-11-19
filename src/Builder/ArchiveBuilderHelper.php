@@ -78,8 +78,8 @@ class ArchiveBuilderHelper
     }
 
     /**
-     * @param list<string> $names
-     * @param list<string> $list
+     * @param string[] $names
+     * @param string[] $list
      */
     protected function isOneOfNamesInList(array $names, array $list): bool
     {
@@ -95,7 +95,7 @@ class ArchiveBuilderHelper
     }
 
     /**
-     * @param list<string> $patterns
+     * @param string[] $patterns
      */
     protected function doesNameMatchOneOfPatterns(string $name, array $patterns): bool
     {
@@ -109,9 +109,9 @@ class ArchiveBuilderHelper
     }
 
     /**
-     * @param list<string> $list
+     * @param string[] $list
      *
-     * @return list<string>
+     * @return string[]
      */
     protected function convertListToRegexPatterns(array $list): array
     {
