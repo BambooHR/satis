@@ -21,6 +21,8 @@ RUN set -eux ; \
     --no-suggest \
     --classmap-authoritative
 
+USER nobody
+
 FROM php:8.5.13-cli-alpine
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
@@ -41,7 +43,11 @@ RUN set -eux ; \
   install-php-extensions \
     bz2 \
     sockets \
-    zip
+    zip ; \
+  addgroup -g 1000 -S satis ; \
+  adduser -D -u 1000 -G satis satis ; \
+  mkdir -p /build /composer ; \
+  chown satis:satis /build /composer
 
 ENV COMPOSER_HOME /composer
 
@@ -49,6 +55,8 @@ COPY php-cli.ini /usr/local/etc/php/
 COPY --from=build /satis /satis/
 
 WORKDIR /build
+
+USER satis
 
 ENTRYPOINT ["/satis/bin/docker-entrypoint.sh"]
 
